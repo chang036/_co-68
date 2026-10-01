@@ -17,4 +17,19 @@ CHIP PC {
 
     PARTS:
     // Put your code here:
+    // 1. 計算遞增值 (out[t] + 1)
+    Inc16(in=regOut, out=incOut);
+
+    // 2. 依據 inc 控制訊號選擇：遞增值 或 原值
+    Mux16(a=regOut, b=incOut, sel=inc, out=outInc);
+
+    // 3. 依據 load 控制訊號選擇：輸入值 (in) 或 上一步結果 (優先權高於 inc)
+    Mux16(a=outInc, b=in, sel=load, out=outLoad);
+
+    // 4. 依據 reset 控制訊號選擇：0 (false) 或 上一步結果 (最高優先權)
+    Mux16(a=outLoad, b=false, sel=reset, out=outReset);
+
+    // 5. 將最終數值存入 Register 暫存器
+    // load設為true代表每個時鐘週期都更新暫存器狀態
+    Register(in=outReset, load=true, out=out, out=regOut);
 }
